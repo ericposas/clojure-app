@@ -1,10 +1,6 @@
 (ns clojure-server.lib.api
   (:require
-   [dotenv :refer [env app-env]]
-   [ring.util.response :refer [response]]
-   [compojure.core :refer :all]
-   [compojure.route :as route]
-   [clojure.pprint :as pp]
+   [dotenv :refer [env]]
    [clojure.string :as str]
    [clojure.data.json :as json]
    [clojure.java.jdbc :as jdbc])
@@ -29,17 +25,35 @@
     select c.name, a.abilities, i.url
     from characters c
     join abilities a on a.character_id = c.id
-    join images i on i.character_id = c.id")])]
+    join images i on i.character_id = c.id
+    order by c.name asc;")])]
     (map
-      (fn
-      [char]
-      (let [abilities-coll (clojure.string/split (:abilities char) #",")
-            abilities-trimmed-entries (map
-                                       #(clojure.string/trim %)
-                                       abilities-coll)]
-        {:name (:name char)
-         :abilities abilities-trimmed-entries
-         :url (:url char)})) result)))
+     (fn
+       [char]
+       (let [abilities-coll (clojure.string/split (:abilities char) #",")
+             abilities-trimmed-entries (map
+                                        #(clojure.string/trim %)
+                                        abilities-coll)]
+         {:name (:name char)
+          :abilities abilities-trimmed-entries
+          :url (:url char)})) result)))
+
+(defn update-character-abilities-by-name
+  "Update a character's list of abilities"
+  [req]
+  (let [name (get-key req "name")
+        abilities (get-key req "abilities")]
+    (if (some? abilities)
+      (jdbc/query db-connection
+                  [(str
+                    "update abilities
+                     set abilities = ?
+                     where character_id = (select id from characters
+                                           where name = ?
+                                           limit 1);")
+                   abilities
+                   name])
+      (str "Updated abilities for " name))))
 
 (defn insert-character
   "Insert a character; If abilities are provided, insert those into 'abilities' table"
@@ -71,6 +85,6 @@
                           commit transaction;")
                      name
                      name abilities name
-                     name url name]))
-      (str "Provide character name, abilities (string), and url (string)")
-    )))
+                     name url name])
+        (str "Character and associated data created."))
+      (str "Provide character name, abilities (string), and url (string)"))))

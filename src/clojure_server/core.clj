@@ -1,27 +1,23 @@
 (ns clojure-server.core
   (:require
-   [dotenv :refer [env app-env]]
-   [compojure.core :refer :all]
-   [compojure.route :as route]
+   [dotenv :refer [env]]
+   [compojure.core :refer [GET POST PUT defroutes]]
    [org.httpkit.server :as server]
-   [ring.middleware.json :as js :refer [wrap-json-body]]
+   [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
    [ring.middleware.defaults :refer :all]
-   [ring.middleware.reload :refer [wrap-reload]]
-   [clojure.pprint :as pp]
-   [clojure.string :as str]
-   [clojure.data.json :as json]
    [clojure-server.lib.routes :as routes])
   (:gen-class))
 
 (defroutes app-routes
   (GET "/characters" [] routes/characters)
-  (POST "/characters" [] routes/post-character))
+  (POST "/characters" [] routes/post-character)
+  (PUT "/character/abilities" [] routes/update-character-abilities))
 
 (defn -main
   "Production"
-  [& args]
+  [& _]
   (let [port (Integer/parseInt (env :PORT))]
     (server/run-server
-     (js/wrap-json-body
-      (js/wrap-json-response app-routes {:keywords? true})) {:port port})
+     (wrap-json-body
+      (wrap-json-response app-routes {:keywords? true})) {:port port})
     (println (str "Running webserver at http:/127.0.0.1:" port "/"))))
