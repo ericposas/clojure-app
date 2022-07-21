@@ -23,5 +23,5 @@
   (let [port (Integer/parseInt (env :PORT))]
     (server/run-server
      (js/wrap-json-body
-      (js/wrap-json-response (wrap-defaults #'app-routes api-defaults) {:keywords? true})) {:port port})
+      (js/wrap-json-response app-routes {:keywords? true})) {:port port})
     (println (str "Running webserver at http:/127.0.0.1:" port "/"))))

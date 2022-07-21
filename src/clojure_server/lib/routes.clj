@@ -6,7 +6,7 @@
    [compojure.route :as route]
    [clojure.pprint :as pp]
    [clojure.string :as str]
-   [cheshire.core :as cheshire]
+   [cheshire.core :as cheshire :refer :all]
    [clojure.data.json :as json]
    [clojure-server.lib.api :as api])
   (:gen-class))
@@ -30,10 +30,7 @@
 (defn post-character
   "Post a Smash character to the database"
   [req]
-  (let [name (:name (:body req))
-        abilities (:abilities (:body req))
-        result (api/insert-character name abilities)]
-
+  (let [result (api/insert-character req)]
     {:status 200
      :headers {"content-type" "application/json"}
-     :body (if (some? result) result "Inserted character data")}))
+     :body {:data result}}))
