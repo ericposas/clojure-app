@@ -25,4 +25,4 @@
   (let [result (api/insert-character req)]
     {:status 200
      :headers {"content-type" "application/json"}
-     :body {:data result}}))
+     :body result}))

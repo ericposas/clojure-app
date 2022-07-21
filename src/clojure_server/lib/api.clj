@@ -26,9 +26,10 @@
   "Retrieve a list of Smash characters"
   []
   (let [result (jdbc/query db-connection [(str "
-    select characters.name, abilities.abilities
-    from characters
-    join abilities on abilities.character_id = characters.id")])]
+    select c.name, a.abilities, i.url
+    from characters c
+    join abilities a on a.character_id = c.id
+    join images i on i.character_id = c.id")])]
     (map
       (fn
       [char]
@@ -37,14 +38,16 @@
                                        #(clojure.string/trim %)
                                        abilities-coll)]
         {:name (:name char)
-         :abilities abilities-trimmed-entries})) result)))
+         :abilities abilities-trimmed-entries
+         :url (:url char)})) result)))
 
 (defn insert-character
   "Insert a character; If abilities are provided, insert those into 'abilities' table"
   [req]
   (let [name (get-key req "name")
-        abilities (get-key req "abilities")]
-    (if (some? abilities)
+        abilities (get-key req "abilities")
+        url (get-key req "url")]
+    (if (some? (and abilities url))
       (do
         (jdbc/query db-connection
                     [(str "start transaction;
@@ -57,9 +60,17 @@
                           where character_id = (select id from characters
                                                 where name = ?
                                                 limit 1);
+                          insert into images (character_id)
+                          select id from characters
+                          where name = ?;
+                          update images
+                          set url = ?
+                          where character_id = (select id from characters
+                                                where name = ?
+                                                limit 1);
                           commit transaction;")
-                     name name abilities name]))
-      (do
-        (jdbc/query db-connection
-                    [(str "insert into characters (name) values (?)")
-                     name])))))
+                     name
+                     name abilities name
+                     name url name]))
+      (str "Provide character name, abilities (string), and url (string)")
+    )))
