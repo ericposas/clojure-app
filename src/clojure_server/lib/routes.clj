@@ -17,15 +17,7 @@
   {:status 200
    :headers {"Content-Type" "application/json"}
    :body (let [chars-result (api/get-characters)]
-           (map (fn
-                  [char]
-                  (let [abilities-coll (clojure.string/split (:abilities char) #",")
-                        abilities-trimmed-entries (map
-                                                   #(clojure.string/trim %)
-                                                   abilities-coll)]
-                    {:name (:name char)
-                     :abilities abilities-trimmed-entries}))
-                chars-result))})
+           chars-result)})
 
 (defn post-character
   "Post a Smash character to the database"

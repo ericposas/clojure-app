@@ -262,6 +262,61 @@ ALTER SEQUENCE public.characters_id_seq OWNED BY public.characters.id;
 
 
 --
+-- Name: images; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.images (
+    id integer NOT NULL,
+    url text,
+    character_id integer NOT NULL
+);
+
+
+ALTER TABLE public.images OWNER TO admin;
+
+--
+-- Name: images_character_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE public.images_character_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.images_character_id_seq OWNER TO admin;
+
+--
+-- Name: images_character_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
+--
+
+ALTER SEQUENCE public.images_character_id_seq OWNED BY public.images.character_id;
+
+
+--
+-- Name: images_id_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE public.images_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.images_id_seq OWNER TO admin;
+
+--
+-- Name: images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
+--
+
+ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
+
+
+--
 -- Name: abilities id; Type: DEFAULT; Schema: public; Owner: admin
 --
 
@@ -283,16 +338,24 @@ ALTER TABLE ONLY public.characters ALTER COLUMN id SET DEFAULT nextval('public.c
 
 
 --
+-- Name: images id; Type: DEFAULT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.images ALTER COLUMN id SET DEFAULT nextval('public.images_id_seq'::regclass);
+
+
+--
+-- Name: images character_id; Type: DEFAULT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.images ALTER COLUMN character_id SET DEFAULT nextval('public.images_character_id_seq'::regclass);
+
+
+--
 -- Data for Name: abilities; Type: TABLE DATA; Schema: public; Owner: admin
 --
 
 COPY public.abilities (id, character_id, abilities) FROM stdin;
-8	27	Final Cutter,Stone,Hammer,Inhale
-9	28	Blaster,Fire Fox,Reflector,Fox Illusion
-10	29	Falcon Punch, Raptor Boost, Falcon Kick, Falcon Dive
-11	30	Bullet Climax, Heel Slide / After Burner Kick, Witch Twist, Witch Time
-12	32	Charge Shot, Missile, Screw Attack, Bomb
-14	35	Shield Breaker, Dancing Blade, Dolphin Slash, Counter
 \.
 
 
@@ -307,7 +370,7 @@ SELECT pg_catalog.setval('public.abilities_character_id_seq', 1, false);
 -- Name: abilities_id_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
 --
 
-SELECT pg_catalog.setval('public.abilities_id_seq', 14, true);
+SELECT pg_catalog.setval('public.abilities_id_seq', 16, true);
 
 
 --
@@ -315,12 +378,6 @@ SELECT pg_catalog.setval('public.abilities_id_seq', 14, true);
 --
 
 COPY public.characters (id, name) FROM stdin;
-27	Kirby
-28	Fox
-29	Captain Falcon
-30	Bayonetta
-32	Samus
-35	Marth
 \.
 
 
@@ -328,7 +385,29 @@ COPY public.characters (id, name) FROM stdin;
 -- Name: characters_id_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
 --
 
-SELECT pg_catalog.setval('public.characters_id_seq', 55, true);
+SELECT pg_catalog.setval('public.characters_id_seq', 58, true);
+
+
+--
+-- Data for Name: images; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+COPY public.images (id, url, character_id) FROM stdin;
+\.
+
+
+--
+-- Name: images_character_id_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('public.images_character_id_seq', 1, false);
+
+
+--
+-- Name: images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('public.images_id_seq', 1, false);
 
 
 --
@@ -348,11 +427,56 @@ ALTER TABLE ONLY public.characters
 
 
 --
+-- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.images
+    ADD CONSTRAINT images_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: characters unique_names; Type: CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY public.characters
     ADD CONSTRAINT unique_names UNIQUE (name);
+
+
+--
+-- Name: fki_character_abilities; Type: INDEX; Schema: public; Owner: admin
+--
+
+CREATE INDEX fki_character_abilities ON public.abilities USING btree (character_id);
+
+
+--
+-- Name: fki_character_image; Type: INDEX; Schema: public; Owner: admin
+--
+
+CREATE INDEX fki_character_image ON public.images USING btree (character_id);
+
+
+--
+-- Name: fki_character_images; Type: INDEX; Schema: public; Owner: admin
+--
+
+CREATE INDEX fki_character_images ON public.images USING btree (character_id);
+
+
+--
+-- Name: abilities character_abilities; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.abilities
+    ADD CONSTRAINT character_abilities FOREIGN KEY (character_id) REFERENCES public.characters(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: images character_images; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.images
+    ADD CONSTRAINT character_images FOREIGN KEY (character_id) REFERENCES public.characters(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
 
 
 --

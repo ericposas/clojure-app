@@ -25,10 +25,19 @@
 (defn get-characters
   "Retrieve a list of Smash characters"
   []
-  (jdbc/query db-connection [(str "
+  (let [result (jdbc/query db-connection [(str "
     select characters.name, abilities.abilities
     from characters
-    join abilities on abilities.character_id = characters.id")]))
+    join abilities on abilities.character_id = characters.id")])]
+    (map
+      (fn
+      [char]
+      (let [abilities-coll (clojure.string/split (:abilities char) #",")
+            abilities-trimmed-entries (map
+                                       #(clojure.string/trim %)
+                                       abilities-coll)]
+        {:name (:name char)
+         :abilities abilities-trimmed-entries})) result)))
 
 (defn insert-character
   "Insert a character; If abilities are provided, insert those into 'abilities' table"
