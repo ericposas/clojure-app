@@ -27,10 +27,10 @@
      :headers {"content-type" "application/json"}
      :body result}))
 
-(defn update-character-abilities
-  "Put/Update a Smash character's abilities in the the database"
-  [req]
-  (let [result (api/update-character-abilities-by-name req)]
-    {:status 200
-     :headers {"content-type" "application/json"}
-     :body result}))
+;; (defn update-character-abilities
+;;   "Put/Update a Smash character's abilities in the the database"
+;;   [req]
+;;   (let [result (api/update-character-abilities-by-name req)]
+;;     {:status 200
+;;      :headers {"content-type" "application/json"}
+;;      :body result}))

@@ -13,36 +13,17 @@
    :user (env :DB_USER)
    :password (env :DB_PASS)})
 
+;-- general functions
+
 (defn get-key
   "Parses JSON, get key value"
   [req key]
   ((keyword key) (json/read-str (str (:body req)) :key-fn keyword)))
 
-(defn get-characters
-  "Retrieve a list of Smash characters"
-  []
-  (let [result (jdbc/query db-connection [(str "
-    select c.name, a.abilities, i.url
-    from characters c
-    join abilities a on a.character_id = c.id
-    join images i on i.character_id = c.id
-    order by c.name asc;")])]
-    (map
-     (fn
-       [char]
-       (let [abilities-coll (clojure.string/split (:abilities char) #",")
-             abilities-trimmed-entries (map
-                                        #(clojure.string/trim %)
-                                        abilities-coll)]
-         {:name (:name char)
-          :abilities abilities-trimmed-entries
-          :url (:url char)})) result)))
-
-(defn get-character-moves
-  "Get detailed moveset data from a specific character"
-  [req]
-  (let [name (get-key req "name")
-        result (jdbc/query db-connection [(str "
+(defn get-moves-list
+  "Get moves list from the database"
+  [name]
+  (jdbc/query db-connection [(str "
     select characters.name as character_name,
     moves.name as name, moves.description as description,
     moves.damage as damage, moves.knockback as knockback
@@ -50,36 +31,72 @@
     join characters on characters.id = character_id
     join moves on moves.id = move_id
     where characters.name = ?")
-                                          name])]
+                             name]))
 
-    (if (some? name)
-      {(keyword name)
-       (map (fn [move]
-              {:special (:name move)
-               :description (:description move)
-               :damage (:damage move)
-               :knockback (:knockback move)}) result)}
-      (str "Provide the character name to look up the moveset"))))
+(defn get-mapped-moves-list
+  "Returns the move list with only the values we want returned"
+  [move]
+  {:special (:name move)
+   :description (:description move)
+   :damage (:damage move)
+   :knockback (:knockback move)})
 
-(defn update-character-abilities-by-name
-  "Update a character's list of abilities"
+;-- called from API endpoints
+
+(defn get-characters
+  "Retrieve a list of Smash characters"
+  []
+  (let [result (jdbc/query db-connection [(str "
+    select c.name, i.url
+    from characters c
+    join images i on i.character_id = c.id
+    order by c.name asc;")])]
+    (map
+     (fn
+       [char]
+       {:name (:name char)
+        :abilities (map
+                    get-mapped-moves-list
+                    (get-moves-list (:name char)))
+        :url (:url char)}) result)))
+
+(defn get-character-moves
+  "Get detailed moveset data from a specific character"
   [req]
   (let [name (get-key req "name")
-        abilities (get-key req "abilities")]
-    (if (some? abilities)
-      (jdbc/query db-connection
-                  [(str
-                    "update abilities
-                     set abilities = ?
-                     where character_id = (select id from characters
-                                           where name = ?
-                                           limit 1);")
-                   abilities
-                   name])
-      (str "Updated abilities for " name))))
+        result (get-moves-list name)]
+    (if (some? name)
+      {(keyword name)
+       (map get-mapped-moves-list result)}
+      (str "Provide the character name to look up the moveset"))))
+
+;; (defn update-character-abilities-by-name
+;;   "Update a character's list of abilities"
+;;   [req]
+;;   (let [name (get-key req "name")
+;;         abilities (get-key req "abilities")]
+;;     (if (some? abilities)
+;;       (jdbc/query db-connection
+;;                   [(str
+;;                     "update abilities
+;;                      set abilities = ?
+;;                      where character_id = (select id from characters
+;;                                            where name = ?
+;;                                            limit 1);")
+;;                    abilities
+;;                    name])
+;;       (str "Updated abilities for " name))))
+
+
+;-- alter this
+;-- need to now insert abilities/moves into character_moves, and moves tables,
+; linking it to the character(s)
+;-- probably needs to be two separate processes;
+; a. create a character by name
+; and b. post abilities, attaching them to a character
 
 (defn insert-character
-  "Insert a character; If abilities are provided, insert those into 'abilities' table"
+  "Insert a character"
   [req]
   (let [name (get-key req "name")
         abilities (get-key req "abilities")
