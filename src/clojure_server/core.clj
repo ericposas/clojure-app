@@ -12,7 +12,8 @@
   (GET "/characters" [] routes/characters)
   (GET "/character-moves" [] routes/get-character-moves)
   (POST "/characters" [] routes/post-character)
-  (POST "/moves" [] routes/create-move))
+  (POST "/moves" [] routes/create-move)
+  (PUT "/images" [] routes/update-image))
 
 (defn -main
   "Production"

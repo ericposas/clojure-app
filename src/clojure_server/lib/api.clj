@@ -70,102 +70,75 @@
        (map get-mapped-moves-list result)}
       (str "Provide the character name to look up the moveset"))))
 
-;; (defn update-character-abilities-by-name
-;;   "Update a character's list of abilities"
-;;   [req]
-;;   (let [name (get-key req "name")
-;;         abilities (get-key req "abilities")]
-;;     (if (some? abilities)
-;;       (jdbc/query db-connection
-;;                   [(str
-;;                     "update abilities
-;;                      set abilities = ?
-;;                      where character_id = (select id from characters
-;;                                            where name = ?
-;;                                            limit 1);")
-;;                    abilities
-;;                    name])
-;;       (str "Updated abilities for " name))))
-
 (defn create-move
   "Create a new move and associate it with a character"
   [req]
   (let [character-name (get-key req "character-name")
         move-name (get-key req "move-name")
         description (get-key req "description")]
-    (if (some? (and move-name description character-name))
+    (if (some? (and
+                (jdbc/query db-connection [(str "select * from characters
+                                                 where name = ?") character-name])
+                move-name description character-name))
       (jdbc/query db-connection [(str "
-        -- move-name, move-description, move-name, character-name
+         start transaction;
                                        
-        start transaction;
-        
-        insert into moves (name, description)
-        values (?, ?);
+         insert into moves (name, description)
+         values (?, ?);
 
-        with
-
-        autoinc as (select 1 as id, 0 as character_id, 0 as move_id
-        from characters_moves),
-
-        _moves as (select 1 as id, id as move_id, 0 as character_id
-        from moves where name = ?),
-
-        _chars as (select 1 as id, 0 as move_id, id as character_id
-        from characters where name = ?),
-
-        complexquery as (select m.move_id, c.character_id
-        from _moves m
-        join _chars c on c.move_id = m.character_id)
-
-        insert into characters_moves
-        select (select max(id) + 1 from characters_moves) as id, character_id, move_id
-        from complexquery;
-
-        commit;")
+         insert into characters_moves
+         select
+          (select max(id) + 1
+           from characters_moves) as id,
+          (select id from characters
+           where name = ?) as character_id,
+          (select id from moves
+           where name = ?
+           limit 1) as move_id;
+                                       
+        commit transaction;")
                                  move-name
                                  description
-                                 move-name
-                                 character-name])
-      (str "Provide a character-name, move-name, and description keys"))))
-
-
-;-- alter this
-;-- need to now insert abilities/moves into character_moves, and moves tables,
-; linking it to the character(s)
-;-- probably needs to be two separate processes;
-; a. create a character by name
-; and b. post abilities, attaching them to a character
+                                 character-name
+                                 move-name])
+      (str "Provide character-name, move-name, description. Also be sure that you have added the character previously."))))
 
 (defn insert-character
   "Insert a character"
   [req]
   (let [name (get-key req "name")
-        abilities (get-key req "abilities")
         url (get-key req "url")]
-    (if (some? (and abilities url))
-      (do
-        (jdbc/query db-connection
-                    [(str "start transaction;
+    (if (some? url)
+      (jdbc/query db-connection
+                  [(str "start transaction;
+                         
                           insert into characters (name) values (?);
-                          insert into abilities (character_id)
-                          select id from characters
-                          where name = ?;
-                          update abilities
-                          set abilities = ?
-                          where character_id = (select id from characters
-                                                where name = ?
-                                                limit 1);
+                          
                           insert into images (character_id)
                           select id from characters
                           where name = ?;
+                          
                           update images
                           set url = ?
                           where character_id = (select id from characters
                                                 where name = ?
                                                 limit 1);
                           commit transaction;")
-                     name
-                     name abilities name
-                     name url name])
-        (str "Character and associated data created."))
-      (str "Provide character name, abilities (string), and url (string)"))))
+                   name name
+                   url name])
+      (str "Provide character name and url (string)"))))
+
+(defn update-character-image
+  "Updates a character image url"
+  [req]
+  (let [name (get-key req "name")
+        url (get-key req "url")]
+    (if (some? (and name url))
+      (jdbc/query db-connection
+                  [(str "update images
+                         set url = ?
+                         where character_id = (select id from characters
+                                       where name = ?)")
+                   url
+                   name])
+      (str "Provide the character name and url to update the image with"))))
