@@ -10,6 +10,7 @@
 
 (defroutes app-routes
   (GET "/characters" [] routes/characters)
+  (GET "/character-moves" [] routes/get-character-moves)
   (POST "/characters" [] routes/post-character)
   (PUT "/character/abilities" [] routes/update-character-abilities))
 

@@ -38,6 +38,29 @@
           :abilities abilities-trimmed-entries
           :url (:url char)})) result)))
 
+(defn get-character-moves
+  "Get detailed moveset data from a specific character"
+  [req]
+  (let [name (get-key req "name")
+        result (jdbc/query db-connection [(str "
+    select characters.name as character_name,
+    moves.name as name, moves.description as description,
+    moves.damage as damage, moves.knockback as knockback
+    from characters_moves
+    join characters on characters.id = character_id
+    join moves on moves.id = move_id
+    where characters.name = ?")
+                                          name])]
+
+    (if (some? name)
+      {(keyword name)
+       (map (fn [move]
+              {:special (:name move)
+               :description (:description move)
+               :damage (:damage move)
+               :knockback (:knockback move)}) result)}
+      (str "Provide the character name to look up the moveset"))))
+
 (defn update-character-abilities-by-name
   "Update a character's list of abilities"
   [req]
