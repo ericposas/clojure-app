@@ -77,8 +77,6 @@
         move-name (get-key req "move-name")
         description (get-key req "description")]
     (if (some? (and
-                (jdbc/query db-connection [(str "select * from characters
-                                                 where name = ?") character-name])
                 move-name description character-name))
       (jdbc/query db-connection [(str "
          start transaction;
