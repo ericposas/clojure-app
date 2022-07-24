@@ -24,22 +24,31 @@
   "Get moves list from the database"
   [name]
   (jdbc/query db-connection [(str "
-    select characters.name as character_name,
-    moves.name as name, moves.description as description,
-    moves.damage as damage, moves.knockback as knockback
+    select
+    characters.name,
+    moves.name as \"move name\",
+    moves.description as \"move description\",
+    moves.damage, moves.knockback,
+    string_agg(attributes.type, ', ' order by type) as \"attack attributes\"
     from characters_moves
     join characters on characters.id = character_id
     join moves on moves.id = move_id
-    where characters.name = ?")
+    left join attributes_group on attributes_group.move_id = moves.id
+    left join attributes on attributes.id = attributes_group.attribute_id
+    where characters.name = ?
+    group by characters.name, moves.name, moves.description,
+    moves.damage, moves.knockback;")
                              name]))
 
 (defn get-mapped-moves-list
   "Returns the move list with only the values we want returned"
   [move]
   {:special (:name move)
-   :description (:description move)
+   (keyword "move name") ((keyword "move name") move)
+   (keyword "move description") ((keyword "move description") move)
    :damage (:damage move)
-   :knockback (:knockback move)})
+   :knockback (:knockback move)
+   (keyword "attack attributes") ((keyword "attack attributes") move)})
 
 ;-- called from API endpoints
 
@@ -140,3 +149,37 @@
                    url
                    name])
       (str "Provide the character name and url to update the image with"))))
+
+(defn add-move-attribute
+  "Adds an attack attribute to a move"
+  [req]
+  (let [move (get-key req "move")
+        attribute (get-key req "attribute")]
+    (if (some? (and move attribute))
+      (jdbc/query db-connection
+                  [(str "
+                   -- create new entry in attributes_group for a move id
+                   start transaction;
+                   
+                   insert into attributes_group (move_id, attribute_id)
+                   select
+                  	(select id from moves where name = ?) as move_id,
+	                  (select id from attributes where type = ?) as attribute_id;
+
+                   -- set the attributes_group_id to the correct move
+                   update moves
+                   set attributes_group_id = (select id from attributes_group where move_id = (select id where name = 'Falcon Punch'))
+                   where id = (select id from moves where name = ?);
+                  
+                   commit transaction;
+                   ")
+                   move
+                   attribute
+                   move])
+      (str "Provide the move to update and the attribute type to update it with"))))
+
+(defn get-all-attack-attributes
+  "Gets all attack attribute types and descriptions"
+  []
+  (jdbc/query db-connection
+              [(str "select * from attributes;")]))

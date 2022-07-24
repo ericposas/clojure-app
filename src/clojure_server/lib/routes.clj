@@ -40,5 +40,21 @@
   [req]
   (let [result (api/update-character-image req)]
     {:status 200
-     :headers {"content-type" "application/json"
-               :body result}}))
+     :headers {"content-type" "application/json"}
+     :body result}))
+
+(defn add-move-attribute
+  "Adds an attack attribute to an existing move"
+  [req]
+  (let [result (api/add-move-attribute req)]
+    {:status 200
+     :headers {"content-type" "application/json"}
+     :body result}))
+
+(defn get-attributes
+  "Get all attack attribute types"
+  [_]
+  (let [result (api/get-all-attack-attributes)]
+    {:status 200
+     :headers {"content-type" "application/json"}
+     :body result}))
