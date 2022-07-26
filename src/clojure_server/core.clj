@@ -5,17 +5,23 @@
    [org.httpkit.server :as server]
    [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
    [ring.middleware.defaults :refer :all]
-   [clojure-server.lib.routes :as routes])
+   [clojure-server.lib.routes :as routes]
+   [compojure.route :as route])
   (:gen-class))
 
+(def root (str (System/getProperty "user.dir") "/public"))
+
 (defroutes app-routes
-  (GET "/characters" [] routes/characters)
-  (GET "/character-moves" [] routes/get-character-moves)
+  (route/files "/" (do (println root) {:root root}))
+  (route/resources "/")
+  (GET "/characters" [] routes/list-characters)
   (POST "/characters" [] routes/post-character)
-  (POST "/moves" [] routes/create-move)
+  (GET "/moves" [] routes/get-character-moves)
+  (PUT "/moves" [] routes/update-character-move)
+  (POST "/moves" [] routes/create-move) ;character-name, move-name, description
   (PUT "/images" [] routes/update-image)
   (POST "/moves/attack-attributes" [] routes/add-move-attribute)
-  (GET "/attack-attributes" [] routes/get-attributes))
+  (GET "/moves/attack-attributes" [] routes/get-attributes))
 
 (defn -main
   "Production"

@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"module$myJSLib.js",
+"lineCount":20,
+"mappings":"A;AAAA,MAAM,CAAE,QAASA,qBAAX,CAAA,GAA6B,+BAAA,CAAA,OAAnC;AAEO,IAAIC,4BAAY,EAAAA,IAAM;AACzBC,SAAQC,CAAAA,GAAR,CAAY,WAAZ,CAAA;AADyB,CAAtB;AAIA,IAAIC,wBAAQA,KAAM,CAACC,GAAD,EAAMC,IAAN,CAANF,IAAqB;AACpC,KAAI;AACA,UAAMG,WAAW,MAAMP,+BAAAA,CAAAA,OAAAA,CAAAA,OAAMQ,CAAAA,GAAN,CAAUH,GAAV,EAAe,CAAEI,QAAS,CAAE,eAAgB,kBAAlB,EAAsCC,cAAeJ,IAArD,CAAX,CAAf,CAAvB;AACA,WAAOC,QAASI,CAAAA,IAAhB;AAFA,GAGF,QAAOC,KAAP,CAAc;AACZ,WAAO,CAAEA,MAAO,gCAAT,CAAP;AADY;AAJoB,CAAjC;AANP;AAAA,IAAAC,iBAAA,EAAA;AAEWZ;AAAAA,cAAAA,CAAAA,SAAAA,GAAAA,yBAAAA;AAIAG;AAAAA,cAAAA,CAAAA,KAAAA,GAAAA,qBAAAA;;",
+"sources":["myJSLib.js"],
+"sourcesContent":["const { default: axios } = require(\"/node_modules/axios/index.js\");\n\nexport var aFunction = () => {\n    console.log('logging..');\n}\n\nexport var jsGet = async (url, auth) => {\n    try {\n        const response = await axios.get(url, { headers: { 'content-type': 'application/json', authorization: auth } })\n        return response.data\n    } catch (error) {\n        return { error: \"Error occurred in axios fetch!\" }\n    }\n}\n"],
+"names":["axios","aFunction","console","log","jsGet","url","auth","response","get","headers","authorization","data","error","$jscomp$tmp$exports$module$name"]
+}

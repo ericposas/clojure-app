@@ -3,7 +3,7 @@
    [clojure-server.lib.api :as api])
   (:gen-class))
 
-(defn characters
+(defn list-characters
   "Get list of Smash characters"
   [_]
   (let [result (api/get-characters)]
@@ -23,6 +23,14 @@
   "Get detailed data about a character's moveset"
   [req]
   (let [result (api/get-character-moves req)]
+    {:status 200
+     :headers {"content-type" "application/json"}
+     :body result}))
+
+(defn update-character-move
+  "Get detailed data about a character's moveset"
+  [req]
+  (let [result (api/update-character-move req)]
     {:status 200
      :headers {"content-type" "application/json"}
      :body result}))

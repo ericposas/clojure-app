@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"module$something.js",
+"lineCount":15,
+"mappings":"A;AAAA,MAAM,CAAE,QAASA,uBAAX,CAAA,GAA6B,+BAAA,CAAA,OAAnC;AAEO,IAAIC,8BAAY,EAAAA,IAAM;AACzBC,SAAQC,CAAAA,GAAR,CAAY,WAAZ,CAAA;AADyB,CAAtB;AAIA,IAAIC,iCAAe,CAACC,GAAD,EAAMC,IAAN,CAAAF,IAAe;AACrCJ,iCAAAA,CAAAA,OAAAA,CAAAA,OAAMO,CAAAA,GAAN,CAAUF,GAAV,EAAe,CAAEG,QAAS,CAAE,eAAgB,kBAAlB,EAAsCC,cAAeH,IAArD,CAAX,CAAf,CAAA;AADqC,CAAlC;AANP;AAAA,IAAAI,mBAAA,EAAA;AAEWT;AAAAA,gBAAAA,CAAAA,SAAAA,GAAAA,2BAAAA;AAIAG;AAAAA,gBAAAA,CAAAA,YAAAA,GAAAA,8BAAAA;;",
+"sources":["something.js"],
+"sourcesContent":["const { default: axios } = require(\"/node_modules/axios/index.js\");\n\nexport var aFunction = () => {\n    console.log('logging..');\n}\n\nexport var doAxiosThing = (url, auth) => {\n    axios.get(url, { headers: { 'content-type': 'application/json', authorization: auth } })\n}\n"],
+"names":["axios","aFunction","console","log","doAxiosThing","url","auth","get","headers","authorization","$jscomp$tmp$exports$module$name"]
+}

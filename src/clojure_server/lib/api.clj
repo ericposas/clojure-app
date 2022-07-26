@@ -1,7 +1,6 @@
 (ns clojure-server.lib.api
   (:require
    [dotenv :refer [env]]
-   [clojure.string :as str]
    [clojure.data.json :as json]
    [clojure.java.jdbc :as jdbc])
   (:gen-class))
@@ -78,6 +77,47 @@
       {(keyword name)
        (map get-mapped-moves-list result)}
       (str "Provide the character name to look up the moveset"))))
+
+(defn update-character-move
+  "Update a special move"
+  [req]
+  (let [move (get-key req "move")
+        description (get-key req "description")
+        damage (get-key req "damage")
+        knockback (get-key req "knockback")]
+    (if (some? (and move description
+                    damage knockback))
+      (jdbc/query db-connection [(str "
+        update moves
+        set description = ?
+        set damage = ?
+        set knockback = ?
+        where name = ?;")
+                                 description
+                                 move])
+      (if (some? (and move knockback))
+        (jdbc/query db-connection [(str "
+        update moves
+        set knockback = ?
+        where name = ?;")
+                                   knockback
+                                   move])
+        (if (some? (and move damage))
+          (jdbc/query db-connection [(str "
+        update moves
+        set damage = ?
+        where name = ?;")
+                                     damage
+                                     move])
+          (if (some? (and move description))
+            (jdbc/query db-connection [(str "
+        update moves
+        set description = ?
+        where name = ?;")
+                                       description
+                                       move])
+            (str "Provide at least \"move\" name and \"description\" keys, and optionally \"damage\" and \"knockback\"")))))))
+
 
 (defn create-move
   "Create a new move and associate it with a character"
@@ -182,4 +222,5 @@
   "Gets all attack attribute types and descriptions"
   []
   (jdbc/query db-connection
-              [(str "select * from attributes;")]))
+              [(str "select * from attributes
+                     order by id asc;")]))
