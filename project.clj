@@ -12,6 +12,7 @@
                  [ring/ring-defaults "0.3.2"]
                  [ring/ring-devel "1.6.3"]
                  [ring/ring-json "0.5.0"]
+                 [jumblerg/ring.middleware.cors "1.0.1"]
                  [compojure "1.6.1"]
                  [http-kit "2.3.0"]
                  [lynxeyes/dotenv "1.0.2"]]

@@ -42,8 +42,7 @@
 (defn get-mapped-moves-list
   "Returns the move list with only the values we want returned"
   [move]
-  {:special (:name move)
-   (keyword "move name") ((keyword "move name") move)
+  {(keyword "move name") ((keyword "move name") move)
    (keyword "move description") ((keyword "move description") move)
    :damage (:damage move)
    :knockback (:knockback move)
