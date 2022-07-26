@@ -84,8 +84,10 @@
         description (get-key req "description")
         damage (get-key req "damage")
         knockback (get-key req "knockback")]
+
     (if (some? (and move description
                     damage knockback))
+
       (jdbc/query db-connection [(str "
         update moves
         set description = ?
@@ -94,6 +96,7 @@
         where name = ?;")
                                  description
                                  move])
+
       (if (some? (and move knockback))
         (jdbc/query db-connection [(str "
         update moves
@@ -101,6 +104,7 @@
         where name = ?;")
                                    knockback
                                    move])
+
         (if (some? (and move damage))
           (jdbc/query db-connection [(str "
         update moves
@@ -108,6 +112,7 @@
         where name = ?;")
                                      damage
                                      move])
+
           (if (some? (and move description))
             (jdbc/query db-connection [(str "
         update moves
@@ -115,6 +120,7 @@
         where name = ?;")
                                        description
                                        move])
+
             (str "Provide at least \"move\" name and \"description\" keys, and optionally \"damage\" and \"knockback\"")))))))
 
 
