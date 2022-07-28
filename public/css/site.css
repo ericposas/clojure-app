@@ -1,8 +1,17 @@
+:root {
+  --mario-red: #FF412D;
+  --capt-falcon-blue: #403961;
+}
+
+html {
+  margin: 0;
+}
+
 body {
+  /* background-color: #000; */
+  background-color: var(--mario-red);
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
-  max-width: 1000px;
   margin: 0 auto;
-  padding-top: 72px;
   -webkit-font-smoothing: antialiased;
   font-size: 1.125em;
   color: #333;
@@ -12,6 +21,7 @@ body {
 h1, h2, h3 {
   color: #000;
 }
+
 h1 {
   font-size: 2.5em
 }
@@ -31,4 +41,13 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+.centered-content {
+  color: #FFF;
+  margin: 0 auto;
+  max-width: 1400px;
+  padding: 100px;
+  border-radius: .5rem;
+  background-color: var(--capt-falcon-blue);
 }
