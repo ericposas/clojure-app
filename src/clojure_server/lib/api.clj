@@ -77,61 +77,65 @@
        (map get-mapped-moves-list result)}
       (str "Provide the character name to look up the moveset"))))
 
-(defn update-character-move
+(defn update-move-description
   "Update a special move"
   [req]
   (let [move (get-key req "move")
-        description (get-key req "description")
-        damage (get-key req "damage")
-        knockback (get-key req "knockback")]
-
-    (if (some? (and move description
-                    damage knockback))
-
+        description (get-key req "description")]
+    (if (some? (and move description))
       (jdbc/query db-connection [(str "
         update moves
         set description = ?
-        set damage = ?
-        set knockback = ?
         where name = ?;")
                                  description
                                  move])
 
-      (if (some? (and move knockback))
-        (jdbc/query db-connection [(str "
-        update moves
-        set knockback = ?
-        where name = ?;")
-                                   knockback
-                                   move])
+      (str "Provide \"move\" name and \"description\" keys"))))
 
-        (if (some? (and move damage))
-          (jdbc/query db-connection [(str "
+(defn update-move-damage
+  "Update a special move"
+  [req]
+  (let [move (get-key req "move")
+        damage (get-key req "damage")]
+    (if (and move damage)
+      (jdbc/query db-connection [(str "
         update moves
         set damage = ?
         where name = ?;")
-                                     damage
-                                     move])
+                                 damage
+                                 move])
 
-          (if (some? (and move description))
-            (jdbc/query db-connection [(str "
+      (str "Provide \"move\" name and \"damage\" keys"))))
+
+(defn update-move-knockback
+  "Update a special move"
+  [req]
+  (let [move (get-key req "move")
+        knockback (get-key req "knockback")]
+    (if (and move knockback)
+      (jdbc/query db-connection [(str "
         update moves
-        set description = ?
+        set knockback = ?
         where name = ?;")
-                                       description
-                                       move])
+                                 knockback
+                                 move])
 
-            (str "Provide at least \"move\" name and \"description\" keys, and optionally \"damage\" and \"knockback\"")))))))
-
+      (str "Provide \"move\" name and \"knockback\" keys"))))
 
 (defn create-move
   "Create a new move and associate it with a character"
   [req]
-  (let [character-name (get-key req "character-name")
-        move-name (get-key req "move-name")
-        description (get-key req "description")]
+  (let [character (get-key req "character")
+        move (get-key req "move")
+        description (get-key req "description")
+        damage (get-key req "damage")
+        knockback (get-key req "knockback")]
     (if (some? (and
-                move-name description character-name))
+                move
+                description
+                character
+                knockback
+                damage))
       (jdbc/query db-connection [(str "
          start transaction;
                                        
@@ -144,16 +148,20 @@
            from characters_moves) as id,
           (select id from characters
            where name = ?) as character_id,
+          (select ?) as damage,
+          (select ?) as knockback,
           (select id from moves
            where name = ?
            limit 1) as move_id;
                                        
         commit transaction;")
-                                 move-name
+                                 move
                                  description
-                                 character-name
-                                 move-name])
-      (str "Provide character-name, move-name, description. Also be sure that you have added the character previously."))))
+                                 character
+                                 damage
+                                 knockback
+                                 move])
+      (str "Provide character, move, description, damage, and knockback values. Also be sure that you have added the character previously."))))
 
 (defn insert-character
   "Insert a character"

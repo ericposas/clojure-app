@@ -27,10 +27,26 @@
      :headers {"content-type" "application/json"}
      :body result}))
 
-(defn update-character-move
-  "Get detailed data about a character's moveset"
+(defn update-move-description
+  "Update a move's descriptive text"
   [req]
-  (let [result (api/update-character-move req)]
+  (let [result (api/update-move-description req)]
+    {:status 200
+     :headers {"content-type" "application/json"}
+     :body result}))
+
+(defn update-move-damage
+  "Update a move's damage info"
+  [req]
+  (let [result (api/update-move-damage req)]
+    {:status 200
+     :headers {"content-type" "application/json"}
+     :body result}))
+
+(defn update-move-knockback
+  "Update a move's knockback info"
+  [req]
+  (let [result (api/update-move-knockback req)]
     {:status 200
      :headers {"content-type" "application/json"}
      :body result}))

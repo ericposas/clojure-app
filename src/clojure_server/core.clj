@@ -18,7 +18,9 @@
   (GET "/characters" [] routes/list-characters)
   (POST "/characters" [] routes/post-character)
   (GET "/moves" [] routes/get-character-moves)
-  (PUT "/moves" [] routes/update-character-move)
+  (PUT "/moves/description" [] routes/update-move-description)
+  (PUT "/moves/damage" [] routes/update-move-damage)
+  (PUT "/moves/knockback" [] routes/update-move-knockback)
   (POST "/moves" [] routes/create-move) ;character-name, move-name, description
   (PUT "/images" [] routes/update-image)
   (POST "/moves/attack-attributes" [] routes/add-move-attribute)
