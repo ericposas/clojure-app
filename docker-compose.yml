@@ -2,24 +2,21 @@ version: "3.8"
 services:
   db:
     image: postgres:9.6
-    container_name: local_pgdb
+    container_name: local_pgdb-clojure-app
     restart: always
     ports:
       - "54320:5432"
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: pass
-    # build:
-    #   context: .
-    #   dockerfile: Pgsql-Dockerfile
     volumes:
       - local_pgdata:/var/lib/postgresql/data # copies local data from ./local_pgdata such as config files into the container
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin4_container
+    container_name: pgadmin4_container-clojure-app
     restart: always
     ports:
-      - "5050:80"
+      - "5051:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: ep@test.com
       PGADMIN_DEFAULT_PASSWORD: pass
